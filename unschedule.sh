@@ -65,15 +65,16 @@ while getopts ":hlcun:g:p:" opt; do
       ;;
   esac
 done
-
-# Check if both -n and -g are provided
-if [[ -z $g_value || -z $n_value ]]; then
-  echo "Error: Both -n and -g are required."
+# Check if both -l, -u -c are provided
+if  ${l_flag} && ${c_flag} ; then
+  echo "Error: Only one of -l or -c or -u can be used at a time."
   exit 1
 fi
-
-# Check if both -l and -c are provided
-if  ${l_flag} && ${c_flag} && ${u_flag}; then
+if  ${l_flag} && ${u_flag}; then
+  echo "Error: Only one of -l or -c or -u can be used at a time."
+  exit 1
+fi
+if  ${c_flag} && ${u_flag}; then
   echo "Error: Only one of -l or -c or -u can be used at a time."
   exit 1
 fi
@@ -91,6 +92,11 @@ elif  ${u_flag}; then
   echo ""
   for i in $(kubectl get nodes -o name | grep $p_value); do kubectl uncordon $i ; done
 elif ${l_flag}; then
+  if [[ -z $g_value || -z $n_value ]]; then
+   echo "Error: Both -n and -g are required when listing nodepools."
+   exit 1
+  fi
+
   echo "       Listing Nodepools"
   echo "================================="
   az aks nodepool list -g $g_value --cluster-name  $n_value -o json | jq '.[].name' --raw-output
