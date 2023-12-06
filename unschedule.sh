@@ -101,5 +101,5 @@ elif ${l_flag}; then
   echo "================================="
   az aks nodepool list -g $g_value --cluster-name  $n_value -o json | jq '.[].name' --raw-output
 else
-  echo "No specific command selected. Use either -l or -c."
+  echo "Use -h for help."
 fi
